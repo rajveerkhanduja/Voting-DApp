@@ -2,52 +2,41 @@
 pragma solidity ^0.8.2;
 
 contract voting {
-    //Create a structure template for each of the candidates
     struct Candidate {
         uint256 id;
         string name;
         uint256 numberOfVotes;
     }
-    //List of all candidates 
+
     Candidate[] public candidates;
-    //This will be the owner's address
     address public owner;
-    // Mapp all voter's address
     mapping(address => bool) public voters;
-    //list of voters
     address[] public listOfVoters;
 
-    //create a voting start and end session
     uint256 public votingStart;
     uint256 public votingEnd;
-
-    //create an election status
     bool public electionStarted;
 
-    //Restrict creating election to the owner only
     modifier onlyOwner() {
         require(msg.sender == owner, "You are not authorized to start an election.");
         _;
     }
 
-    //check if an election is ongoing
-    modifier electionOngoing(){
+    modifier electionOngoing() {
         require(electionStarted, "No election yet");
         _;
     }
 
-    //create a constructor 
     constructor() {
         owner = msg.sender;
     }
 
-    //to start an election 
     function startElection(string[] memory _candidates, uint256 _votingDuration) public onlyOwner {
-        require(electionStarted == false, "Election is currently ongoing");
+        require(!electionStarted, "Election is currently ongoing");
         delete candidates;
         resetAllVoterStatus();
 
-        for(uint256 i=0 ; i<_candidates.length ; i++){
+        for (uint256 i = 0; i < _candidates.length; i++) {
             candidates.push(
                 Candidate({id: i, name: _candidates[i], numberOfVotes: 0})
             );
@@ -57,7 +46,6 @@ contract voting {
         votingEnd = block.timestamp + (_votingDuration * 1 minutes);
     }
 
-    //to add a new candidate
     function addCandidate(string memory _name) public onlyOwner electionOngoing {
         require(checkElectionPeriod(), "Election period has ended");
         candidates.push(
@@ -65,51 +53,39 @@ contract voting {
         );
     }
 
-    //check voter's status
-
-    function voterStatus(address _voter) public view electionOngoing returns (bool){
-        if(voters[_voter] == true){
-            return true;
-        }
-        else{
-            return false;
-        }
+    function voterStatus(address _voter) public view electionOngoing returns (bool) {
+        return voters[_voter];
     }
 
-    //to vote function 
     function voteTo(uint256 _id) public electionOngoing {
         require(checkElectionPeriod(), "Election period has ended");
-        require(!voterStatus(msg.sender), "You already voted. You can only votee once.");
+        require(!voterStatus(msg.sender), "You already voted. You can only vote once.");
         candidates[_id].numberOfVotes++;
-        voters[msg.sender]=true;
+        voters[msg.sender] = true;
         listOfVoters.push(msg.sender);
     }
 
-    //get the number of votes
-    function retrieveVotes() public view returns (Candidate[] memory){
+    function retrieveVotes() public view returns (Candidate[] memory) {
         return candidates;
     }
 
-    //monitor the election time
     function electionTimer() public view electionOngoing returns (uint256) {
-        if(block.timestamp >= votingEnd){
+        if (block.timestamp >= votingEnd) {
             return 0;
         }
         return (votingEnd - block.timestamp);
     }
 
-    //check if election period is still ongoing
     function checkElectionPeriod() public returns (bool) {
-        if(electionTimer() > 0){
+        if (electionTimer() > 0) {
             return true;
         }
         electionStarted = false;
         return false;
     }
 
-    //to reset all voters 
     function resetAllVoterStatus() public onlyOwner {
-        for(uint256 i=0 ; i<listOfVoters.length ; i++){
+        for (uint256 i = 0; i < listOfVoters.length; i++) {
             voters[listOfVoters[i]] = false;
         }
         delete listOfVoters;

@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting Dapp</title>
+    <title>Voting DApp</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <div class="container">
+        <h1>Voting DApp</h1>
+        <div id="connectionStatus">Connecting...</div>
+        <div id="ownerControls" style="display: none;">
+            <h2>Owner Controls</h2>
+            <input type="text" id="candidateNames" placeholder="Candidate names (comma-separated)">
+            <input type="number" id="votingDuration" placeholder="Voting duration (minutes)">
+            <button id="startElection">Start Election</button>
+            <input type="text" id="newCandidateName" placeholder="New candidate name">
+            <button id="addCandidate">Add Candidate</button>
+        </div>
+        <div id="voterControls" style="display: none;">
+            <h2>Voter Controls</h2>
+            <div id="candidateList"></div>
+            <button id="voteButton">Vote</button>
+        </div>
+        <div id="electionStatus"></div>
+        <div id="votingResults"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
