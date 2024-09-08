@@ -20,10 +20,20 @@
         </div>
         <div id="voterControls" style="display: none;">
             <h2>Voter Controls</h2>
+            <p id="electionStatus">Election status: Not started</p>
             <div id="candidateList"></div>
             <button id="voteButton">Vote</button>
         </div>
         <div id="electionStatus"></div>
+        <table id="candidatesTable">
+            <thead>
+                <tr>
+                    <th>Candidate Name</th>
+                    <th>Votes</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
         <div id="votingResults"></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
