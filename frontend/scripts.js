@@ -72,7 +72,11 @@ async function load() {
                 const candidateId = selectedCandidate.getAttribute('data-id');
                 await contract.methods.voteTo(candidateId).send({ from: account });
                 alert("Vote cast!");
-                loadCandidatesAndVotes();
+        
+                // Remove the table after voting
+                document.getElementById('candidatesTable').style.display = 'none';
+                
+                loadCandidatesAndVotes(); // Optionally reload the candidates list after voting
             } else {
                 alert("Please select a candidate to vote for.");
             }
@@ -122,23 +126,36 @@ async function loadCandidatesAndVotes() {
     // Clear the candidate list
     candidateList.innerHTML = '';
 
-    // Add candidates with clickable divs
+    // Add candidates without vote counts for voters
     candidates.forEach((candidate, index) => {
         const candidateDiv = document.createElement('div');
-        candidateDiv.textContent = `${candidate.name} (Votes: ${candidate.numberOfVotes})`;
+        candidateDiv.textContent = `${candidate.name}`;
         candidateDiv.setAttribute('data-id', index); // Assign a unique index for selection
         candidateList.appendChild(candidateDiv);
     });
 
-    // Clear the table first
-    const candidatesTableBody = document.querySelector('#candidatesTable tbody');
-    candidatesTableBody.innerHTML = '';
+    // If the user is the owner, show the table with vote counts
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+    const owner = await contract.methods.owner().call();
+    
+    if (account.toLowerCase() === owner.toLowerCase()) {
+        // Clear the table first
+        const candidatesTableBody = document.querySelector('#candidatesTable tbody');
+        candidatesTableBody.innerHTML = '';
 
-    // Add candidates with their votes
-    candidates.forEach(candidate => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${candidate.name}</td><td>${candidate.numberOfVotes}</td>`;
-        candidatesTableBody.appendChild(row);
-    });
+        // Add candidates with their votes for the owner
+        candidates.forEach(candidate => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${candidate.name}</td><td>${candidate.numberOfVotes}</td>`;
+            candidatesTableBody.appendChild(row);
+        });
+
+        document.getElementById('candidatesTable').style.display = 'table';
+    } else {
+        // Hide the table for voters
+        document.getElementById('candidatesTable').style.display = 'none';
+    }
 }
+
 load();
